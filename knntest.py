@@ -36,18 +36,24 @@ ypred = clf.predict(X_train)
 
 #Equalize the shape of Test and Train RDOS values
 size = int(ypred.shape[0])
-ans = abs(predictions[:size] - ypred[:size])
+delta = abs(predictions[:size] - ypred[:size])
+
+#print(y_train)
 
 #Calculate Informative Distance
-ans = clf.infodist(X_test, ans)
+ans = clf.infodist(X_train, delta)
 
 print("Our Implementation predicts: " + str(ans))
+
+print(accuracy(y_test[:size],ans))
 
 #Normal kNN Classification (nCLF)
 nCLF = KNeighborsClassifier(n_neighbors = 4)
 nCLF.fit(X_train, y_train)
 npred = nCLF.predict(X_test)
 
-print("Normal kNN prediction: " + str(Counter(npred).most_common(1)))
+print("Normal kNN prediction: " + str(npred))#str(Counter(npred).most_common(1)))
 
+
+print(accuracy(y_test[:size],npred[:size]))
 

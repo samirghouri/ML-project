@@ -1,6 +1,6 @@
 import math
 import numpy as np
-from statistics import mean
+from statistics import median
 from collections import Counter
 
 
@@ -18,29 +18,24 @@ class KNN:
         self.y_train = y
 
     def predict(self, X):
-        predictions = [self._predict(x)for x in X]
+        predictions = [self.custompredict(x)for x in X]
         return np.array(predictions)
 
-    def _predict(self, x):
+    def custompredict(self, x):
 
         distance = [euclidean_distance(x, x_train)for x_train in self.X_train]
 
         k_indices = np.argsort(distance)[:self.k]
-        # print(k_indices)
-        k_nearest_labels = [self.y_train[i]for i in k_indices]
-
-        most_common = Counter(k_nearest_labels).most_common(1)
-        # it returns the most commmon item in form of tuple
-        # return most_common[0][0]
-
-        # finding the forward density
+        
+        #Find forward density
         sorted_distance = sorted(distance)
         sorted_distance = list(filter(lambda a: a != 0.00, sorted_distance))
         fd_list = []
         for i in range(self.k):
             forward_density = (i+1)/sorted_distance[i]
             fd_list.append(forward_density)
-        # finding the ranking of x by q
+            
+        #Find ranking of x by q
         N_x = []
         for k in k_indices:
             N_x.append(self.X_train[k])
@@ -58,29 +53,31 @@ class KNN:
                     R += 1
             reverse_list.append(R)
             count += 1
-        # calculating the RDOS values
+            
+        #Calculating the RDOS values
         count = 0
         RDOS = []
-        for i in range(4):
+        for i in range(self.k):
             count += 1
             RDOS.append((reverse_list[i]-count)/fd_list[i])
-        
-        return mean(RDOS)
+            
+        #Return mean of RDOS values
+        return median(RDOS)
     
     def infodist(self, x, ans):
         a = []
+        answer = []
         for x_train, i in zip(self.X_train, ans):
-            a.append(euclidean_distance(x, x_train) * (1 + math.log(1 + i)))
-        
-        k_indices = np.argsort(a)[:self.k]
+            for j in x:
+                a.append(euclidean_distance(j, x_train) * (1 + math.log(1 + i)))
+                
+            
     
-        k_nearest_labels = []
-
-        for i in k_indices:
-            k_nearest_labels.append(self.y_train[i])
+            for i in k_nearest_labels:
+                k_nearest_labels.append(self.y_train[i])
+            
+            most_common = Counter(k_nearest_labels).most_common(1)
+            # it returns the most commmon item in form of tuple
+            answer.append(most_common[0][0])
         
-        print(k_nearest_labels)
-        
-        most_common = Counter(k_nearest_labels).most_common(1)
-        # it returns the most commmon item in form of tuple
-        return most_common[0][0]
+        return answer
