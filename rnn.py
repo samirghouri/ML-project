@@ -1,6 +1,7 @@
+import math
 import numpy as np
-from collections import Counter
 from statistics import mean
+from collections import Counter
 
 
 def euclidean_distance(x1, x2):
@@ -63,4 +64,23 @@ class KNN:
         for i in range(4):
             count += 1
             RDOS.append((reverse_list[i]-count)/fd_list[i])
-        print(mean(RDOS))
+        
+        return mean(RDOS)
+    
+    def infodist(self, x, ans):
+        a = []
+        for x_train, i in zip(self.X_train, ans):
+            a.append(euclidean_distance(x, x_train) * (1 + math.log(1 + i)))
+        
+        k_indices = np.argsort(a)[:self.k]
+    
+        k_nearest_labels = []
+
+        for i in k_indices:
+            k_nearest_labels.append(self.y_train[i])
+        
+        print(k_nearest_labels)
+        
+        most_common = Counter(k_nearest_labels).most_common(1)
+        # it returns the most commmon item in form of tuple
+        return most_common[0][0]
