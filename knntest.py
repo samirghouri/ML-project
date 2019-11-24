@@ -1,60 +1,53 @@
-from rnn import KNN
 import numpy as np
+from rnn import KNN
 from sklearn import datasets
 from collections import Counter
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
 from matplotlib.colors import ListedColormap
-cmap = ListedColormap(['#FF0000', '#00FF00', '#0000FF'])
-
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.model_selection import train_test_split
 
 def accuracy(y_true, y_pred):
     accuracy = np.sum(y_true == y_pred) / len(y_true)
     return accuracy
 
-
-iris = datasets.load_digits()
+#Load Dataset
+iris = datasets.load_wine()
+#iris = datasets.load_iris()
+#iris = datasets.load_breast_cancer()
 X, y = iris.data, iris.target
 
+#Test Train Split
 X_train, X_test, y_train, y_test = train_test_split(
     X, y, test_size=0.5, random_state=1234)
 
+#No. of neighbours to search (k)
 k = 5
+
+#Classification
 clf = KNN(k=k)
 clf.fit(X_train, y_train)
+
+#Prediction of Test set
 predictions = clf.predict(X_test)
 
-#print(X_train)
-#print("aaaaaaaaaaaaaaaaaaaaaaa")
-#print (X_test)
-
-
+#Prediction of Train set
 ypred = clf.predict(X_train)
-#print("aaaaaaaaaaaaaaaaaaaaaa")
-#print(ypred[50:])
 
-shp = int(ypred.shape[0])
-print(shp)
-ans = abs(predictions[:shp] - ypred[:shp])
+#Equalize the shape of Test and Train RDOS values
+size = int(ypred.shape[0])
+ans = abs(predictions[:size] - ypred[:size])
 
-#print("custom KNN classification accuracy", accuracy(y_test, predictions))
-#print(predictions.shape)
-#print(y_test.shape)
-
-#print("---")
-print(ans)
-
+#Calculate Informative Distance
 ans = clf.infodist(X_test, ans)
 
-print(ans)
+print("Our Implementation predicts: " + str(ans))
 
-loda = KNeighborsClassifier(n_neighbors = 4)
-loda.fit(X_train, y_train)
-lodapred = loda.predict(X_test)
+#Normal kNN Classification (nCLF)
+nCLF = KNeighborsClassifier(n_neighbors = 4)
+nCLF.fit(X_train, y_train)
+npred = nCLF.predict(X_test)
 
-print(lodapred)
-
-print(Counter(lodapred).most_common(1))
+print("Normal kNN prediction: " + str(Counter(npred).most_common(1)))
 
 
