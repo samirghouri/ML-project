@@ -1,6 +1,6 @@
 import math
 import numpy as np
-from statistics import mean
+from statistics import median
 from collections import Counter
 
 
@@ -64,23 +64,23 @@ class KNN:
         for i in range(4):
             count += 1
             RDOS.append((reverse_list[i]-count)/fd_list[i])
-        
-        return mean(RDOS)
-    
+
+        return median(RDOS)
+
     def infodist(self, x, ans):
         a = []
         for x_train, i in zip(self.X_train, ans):
             a.append(euclidean_distance(x, x_train) * (1 + math.log(1 + i)))
-        
+        # print(a)
         k_indices = np.argsort(a)[:self.k]
-    
+
         k_nearest_labels = []
 
         for i in k_indices:
             k_nearest_labels.append(self.y_train[i])
-        
-        print(k_nearest_labels)
-        
+
+        # print(k_nearest_labels)
+
         most_common = Counter(k_nearest_labels).most_common(1)
         # it returns the most commmon item in form of tuple
         return most_common[0][0]

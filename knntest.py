@@ -1,4 +1,4 @@
-from rnn import KNN
+from re import KNN
 import numpy as np
 from sklearn import datasets
 from collections import Counter
@@ -14,7 +14,7 @@ def accuracy(y_true, y_pred):
     return accuracy
 
 
-iris = datasets.load_digits()
+iris = datasets.load_iris()
 X, y = iris.data, iris.target
 
 X_train, X_test, y_train, y_test = train_test_split(
@@ -23,38 +23,19 @@ X_train, X_test, y_train, y_test = train_test_split(
 k = 5
 clf = KNN(k=k)
 clf.fit(X_train, y_train)
-predictions = clf.predict(X_test)
-
-#print(X_train)
-#print("aaaaaaaaaaaaaaaaaaaaaaa")
-#print (X_test)
+# predictions = clf.predict(X_test)
 
 
-ypred = clf.predict(X_train)
-#print("aaaaaaaaaaaaaaaaaaaaaa")
-#print(ypred[50:])
 
-shp = int(ypred.shape[0])
-print(shp)
-ans = abs(predictions[:shp] - ypred[:shp])
-
-#print("custom KNN classification accuracy", accuracy(y_test, predictions))
-#print(predictions.shape)
-#print(y_test.shape)
-
-#print("---")
+ans = clf.infodist(X_train)
 print(ans)
+# print("accuracy of the new model", accuracy(y_test, ans))
 
-ans = clf.infodist(X_test, ans)
 
-print(ans)
-
-loda = KNeighborsClassifier(n_neighbors = 4)
+loda = KNeighborsClassifier(n_neighbors=4)
 loda.fit(X_train, y_train)
 lodapred = loda.predict(X_test)
 
-print(lodapred)
+# print(lodapred)
 
 print(Counter(lodapred).most_common(1))
-
-
