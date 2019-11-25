@@ -1,59 +1,85 @@
+import math
 import numpy as np
-from rnn import KNN
-from sklearn import datasets
+from statistics import median
 from collections import Counter
-import matplotlib.pyplot as plt
-from matplotlib.colors import ListedColormap
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.model_selection import train_test_split
-
-def accuracy(y_true, y_pred):
-    accuracy = np.sum(y_true == y_pred) / len(y_true)
-    return accuracy
-
-#Load Dataset
-iris = datasets.load_wine()
-#iris = datasets.load_iris()
-#iris = datasets.load_breast_cancer()
-X, y = iris.data, iris.target
-
-#Test Train Split
-X_train, X_test, y_train, y_test = train_test_split(
-    X, y, test_size=0.5, random_state=1234)
-
-#No. of neighbours to search (k)
-k = 5
-
-#Classification
-clf = KNN(k=k)
-clf.fit(X_train, y_train)
-
-#Prediction of Test set
-predictions = clf.predict(X_test)
-
-#Prediction of Train set
-ypred = clf.predict(X_train)
-
-#Equalize the shape of Test and Train RDOS values
-size = int(ypred.shape[0])
-delta = abs(predictions[:size] - ypred[:size])
-
-#print(y_train)
-
-#Calculate Informative Distance
-ans = clf.infodist(X_train, delta)
-
-print("Our Implementation predicts: " + str(ans))
-
-print(accuracy(y_test[:size],ans))
-
-#Normal kNN Classification (nCLF)
-nCLF = KNeighborsClassifier(n_neighbors = 4)
-nCLF.fit(X_train, y_train)
-npred = nCLF.predict(X_test)
-
-print("Normal kNN prediction: " + str(npred))#str(Counter(npred).most_common(1)))
 
 
-print(accuracy(y_test[:size],npred[:size]))
+def euclidean_distance(x1, x2):
+    return np.sqrt(np.sum((x1-x2)**2))
 
+# def predict(self, X):
+#     predictions = [self._predict(x)for x in X]
+#     return np.array(predictions)
+
+def get_RDOS(p,x, y_train, k ):
+    distance = [euclidean_distance(p, i)for i in x]
+    
+    k_indices = np.argsort(distance)[:k]
+    # print(k_indices)
+    k_nearest_labels = [y_train[i]for i in k_indices]
+
+    # most_common = Counter(k_nearest_labels).most_common(1)
+    # it returns the most commmon item in form of tuple
+    # return most_common[0][0]
+
+    # finding the forward density
+    sorted_distance = sorted(distance)
+    sorted_distance = list(filter(lambda a: a != 0.00, sorted_distance))
+    fd_list = []
+    for i in range(k):
+        forward_density = (i+1)/sorted_distance[i]
+        fd_list.append(forward_density)
+    # finding the ranking of x by q
+    N_x = []
+    for k in k_indices:
+        N_x.append(x[k])
+
+    reverse_list = []
+    for s in N_x:
+        count, R = 0, 0
+        if s in x:
+            distance2 = [euclidean_distance(
+                s, x_train)for x_train in x]
+        distance2 = sorted(distance2)
+        distance2 = list(filter(lambda a: a != 0.00, distance2))
+        for dis in distance2:
+            if dis < sorted_distance[count]:
+                R += 1
+        reverse_list.append(R)
+        count += 1
+    # calculating the RDOS values
+    count = 0
+    RDOS = []
+    for i in range(4):
+        count += 1
+        RDOS.append((reverse_list[i]-count)/fd_list[i])
+        
+    return median(RDOS)
+
+
+def delta(i,j,x, y_train, k):
+    return abs(get_RDOS(i,x, y_train, k)-get_RDOS(j,x, y_train, k))
+
+def infodist(x, y_train, k):
+    dist = []
+    answer = []
+    for i in x:
+        k_indices = []
+        dist = []
+        for j in x:
+            dist.append(euclidean_distance(i,j)*(1+math.log(1+delta(i,j,x, y_train, k))))
+
+        k_indices = np.argsort(dist)[:k]
+    
+        #print(k_indices)
+    
+        k_nearest_labels = []
+    
+        for i in k_indices:
+            k_nearest_labels.append(y_train[i])
+            
+        most_common = Counter(k_nearest_labels).most_common(1)
+            # it returns the most commmon item in form of tuple
+        answer.append(most_common[0][0])
+
+    return answer
