@@ -14,11 +14,12 @@ def accuracy(y_true, y_pred):
     return accuracy
 
 
-iris = datasets.load_breast_cancer()
+iris = datasets.load_iris()
+
 X, y = iris.data, iris.target
 
 X_train, X_test, y_train, y_test = train_test_split(
-    X, y, test_size=0.7, random_state=101)
+    X, y, test_size=0.7, random_state=1234)
 
 k=4
 
@@ -27,10 +28,10 @@ print(ans)
 # print("accuracy of the new model", accuracy(y_test, ans))
 
 
-loda = KNeighborsClassifier(n_neighbors=4)
-loda.fit(X_train, y_train)
-lodapred = loda.predict(X_test)
+default = KNeighborsClassifier(n_neighbors=4)
+default.fit(X_train, y_train)
+default_pred = default.predict(X_test)
 
-print("Default Acc: " + str(accuracy(y_test, lodapred)))
+print("Default Acc: " + str(accuracy(y_test, default_pred)))
 
 print("Hamara Acc: " + str(accuracy(y_train, ans)))
